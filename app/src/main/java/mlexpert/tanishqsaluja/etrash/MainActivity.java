@@ -3,6 +3,7 @@ package mlexpert.tanishqsaluja.etrash;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -15,8 +16,10 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -28,10 +31,16 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.IOException;
 import java.util.Map;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
     FirebaseAuth firebaseAuth;
@@ -43,7 +52,9 @@ public class MainActivity extends AppCompatActivity {
     private ImageView webuy, rates, classify, contribution, wallet, sell;
     private OkHttpClient okHttpClient;
     private Uri imageUri;
+
     String base = "https://bece09f8.ngrok.io/ping";
+    String route = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         sell = findViewById(R.id.sell);
 
         mStorageRef = FirebaseStorage.getInstance().getReference("images/");
-        mDatabaseReference = FirebaseDatabase.getInstance().getReference().child("pic");
+        mDatabaseReference = FirebaseDatabase.getInstance().getReference().child("pic/");
 
         classify.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent();
                 intent.setAction(Intent.ACTION_GET_CONTENT);
                 intent.setType("image/*");
-                //   intent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
+                //intent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
                 startActivityForResult(intent, CAPTURE_IMAGE);
                 Log.e("TEST", "Image Taken.");
             }
@@ -107,6 +118,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        rates.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, ratingActivity.class);
+                startActivity(intent);
+            }
+        });
+
     }
 
     @Override
@@ -118,14 +137,62 @@ public class MainActivity extends AppCompatActivity {
             progressDialog.show();
             Toast.makeText(MainActivity.this, "Uploading....", Toast.LENGTH_SHORT).show();
             imageUri = data.getData();
+            final String[] downloadURL = {""};
 
-            StorageReference fileref = mStorageRef.child("images/pic");
+            final StorageReference fileref = mStorageRef.child("images/pic");
             fileref.putFile(imageUri).
                     addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             progressDialog.dismiss();
                             Toast.makeText(MainActivity.this, "Uploaded successfully", Toast.LENGTH_SHORT).show();
+
+                            fileref.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Uri> task) {
+                                    if (task.isSuccessful()) {
+                                        Uri downloadUri = task.getResult();
+                                        String downloadUrl = downloadUri.toString();
+                                        Toast.makeText(MainActivity.this, downloadUrl, Toast.LENGTH_SHORT).show();
+
+                                        // @POST Code using OKHTTP OAUTH2
+                                        okHttpClient = new OkHttpClient();
+                                        RequestBody requestBody = new MultipartBody.Builder()
+                                                .setType(MultipartBody.FORM)
+                                                // How to send ?
+                                                .addFormDataPart("key", downloadUrl)
+                                                .build();
+
+                                        Request request = new Request.Builder()
+                                                .url(base + route)
+                                                .post(requestBody)
+                                                .build();
+
+                                        okHttpClient.newCall(request).enqueue(new Callback() {
+                                            @Override
+                                            public void onFailure(Call call, IOException e) {
+                                            }
+
+                                            @Override
+                                            public void onResponse(Call call, Response response) throws IOException {
+                                                String string = response.body().string();
+                                                Log.e("TAG",string);
+                                                try {
+                                                    Log.e("TEST", string);
+                                                } catch (Exception e) {
+                                                    Log.e("TEST", "catch");
+                                                    e.printStackTrace();
+                                                    Log.e("TEST", e.getMessage());
+                                                }
+                                            }
+                                        });
+                                    } else {
+                                        // Handle failures
+                                        // ...
+                                    }
+                                }
+                            });
+
                         }
                     })
                     .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {

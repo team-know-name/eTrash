@@ -29,6 +29,9 @@
         <activity
             android:name=".contriActivity"
             android:parentActivityName=".MainActivity"></activity>
+        <activity
+            android:name=".ratingActivity"
+            android:parentActivityName=".MainActivity"></activity>
     </application>
 
 </manifest>
