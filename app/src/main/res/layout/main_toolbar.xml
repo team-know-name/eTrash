@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:textColor="#ffffff"
         android:layout_gravity="center"
-        android:text="THE Kabadiwala"
+        android:text="THE ScrapWala"
         android:textSize="20dp"
         android:textStyle="bold"
         />

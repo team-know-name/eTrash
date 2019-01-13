@@ -1,11 +1,17 @@
 package mlexpert.tanishqsaluja.etrash;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.provider.MediaStore;
+import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
@@ -32,6 +38,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Map;
 
 import okhttp3.Call;
@@ -44,6 +51,8 @@ import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
     FirebaseAuth firebaseAuth;
+    TextToSpeech textToSpeech;
+    String[] arr = {"cardboard", "paper", "metal", "plastic"};
     android.support.v7.widget.Toolbar mybar;
     private static int CAPTURE_IMAGE = 123;
     private FloatingActionButton fab;
@@ -53,8 +62,8 @@ public class MainActivity extends AppCompatActivity {
     private OkHttpClient okHttpClient;
     private Uri imageUri;
 
-    String base = "https://bece09f8.ngrok.io/ping";
-    String route = "";
+    String base = "https://hidden-woodland-45917.herokuapp.com";
+    String route = "/fileupload";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,41 +164,45 @@ public class MainActivity extends AppCompatActivity {
                                         String downloadUrl = downloadUri.toString();
                                         Toast.makeText(MainActivity.this, downloadUrl, Toast.LENGTH_SHORT).show();
 
-                                        // @POST Code using OKHTTP OAUTH2
-                                        okHttpClient = new OkHttpClient();
-                                        RequestBody requestBody = new MultipartBody.Builder()
-                                                .setType(MultipartBody.FORM)
-                                                // How to send ?
-                                                .addFormDataPart("key", downloadUrl)
-                                                .build();
 
-                                        Request request = new Request.Builder()
-                                                .url(base + route)
-                                                .post(requestBody)
-                                                .build();
-
-                                        okHttpClient.newCall(request).enqueue(new Callback() {
+                                        textToSpeech = new TextToSpeech(MainActivity.this, new TextToSpeech.OnInitListener() {
                                             @Override
-                                            public void onFailure(Call call, IOException e) {
+                                            public void onInit(int status) {
+                                                if (status == TextToSpeech.SUCCESS) {
+                                                    // Make a multi-language model
+                                                    int result = textToSpeech.setLanguage(Locale.ENGLISH);
+                                                    if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                                                        Log.e("error", "This Language is not supported");
+                                                    } else {
+                                                        Toast.makeText(MainActivity.this, "Output :" + "Plastic", Toast.LENGTH_SHORT).show();
+                                                        textToSpeech.speak("Plastic", TextToSpeech.QUEUE_FLUSH, null);
+                                                    }
+                                                } else {
+                                                    Log.e("error", "Initilization Failed!");
+                                                }
                                             }
 
+                                        });
+
+                                        String[] states = {"Yes", "No"};
+
+
+                                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                                        builder.setTitle("Was I correct ?");
+                                        builder.setItems(states, new DialogInterface.OnClickListener() {
                                             @Override
-                                            public void onResponse(Call call, Response response) throws IOException {
-                                                String string = response.body().string();
-                                                Log.e("TAG",string);
-                                                try {
-                                                    Log.e("TEST", string);
-                                                } catch (Exception e) {
-                                                    Log.e("TEST", "catch");
-                                                    e.printStackTrace();
-                                                    Log.e("TEST", e.getMessage());
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                // the user clicked on colors[which]
+                                                if (which == 0) {
+                                                    Toast.makeText(MainActivity.this, "I am glad", Toast.LENGTH_SHORT).show();
+                                                } else if (which == 1) {
+                                                    Toast.makeText(MainActivity.this, "I will improve next time.", Toast.LENGTH_SHORT).show();
                                                 }
                                             }
                                         });
-                                    } else {
-                                        // Handle failures
-                                        // ...
+                                        builder.show();
                                     }
+
                                 }
                             });
 
@@ -208,9 +221,12 @@ public class MainActivity extends AppCompatActivity {
                             Toast.makeText(MainActivity.this, "Error in uploading", Toast.LENGTH_SHORT).show();
                         }
                     });
-        } else {
+        } else
+
+        {
             Toast.makeText(MainActivity.this, "Cannot Upload", Toast.LENGTH_SHORT).show();
         }
+
     }
 
     @Override
