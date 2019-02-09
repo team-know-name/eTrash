@@ -32,6 +32,16 @@
         <activity
             android:name=".ratingActivity"
             android:parentActivityName=".MainActivity"></activity>
+        <activity
+            android:name=".pollutionActivity"
+            android:parentActivityName=".MainActivity"></activity>
+        <activity
+            android:name=".disposalActivity"
+            android:parentActivityName=".MainActivity"></activity>
+        <activity
+            android:name=".campaignActivity"
+            android:parentActivityName=".MainActivity"></activity>
+
     </application>
 
 </manifest>

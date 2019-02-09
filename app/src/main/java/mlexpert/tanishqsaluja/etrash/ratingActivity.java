@@ -31,6 +31,7 @@ public class ratingActivity extends AppCompatActivity {
                 // the user clicked on colors[which]
                 if (which == 0) {
                     Toast.makeText(ratingActivity.this, "Delhi selected", Toast.LENGTH_SHORT).show();
+                    
                 }else if (which == 1) {
                     Toast.makeText(ratingActivity.this, "Mumbai selected", Toast.LENGTH_SHORT).show();
                 }else if (which == 2) {

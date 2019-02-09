@@ -1,20 +1,16 @@
 package mlexpert.tanishqsaluja.etrash;
 
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.provider.MediaStore;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -43,6 +39,7 @@ import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.FormBody;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -58,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton fab;
     private StorageReference mStorageRef;
     private DatabaseReference mDatabaseReference;
-    private ImageView webuy, rates, classify, contribution, wallet, sell;
+    private ImageView webuy, rates, classify, contribution, wallet, sell,pollution;
     private OkHttpClient okHttpClient;
     private Uri imageUri;
 
@@ -67,7 +64,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        super.onCreate(
+                savedInstanceState);
         firebaseAuth = FirebaseAuth.getInstance();
         setContentView(R.layout.activity_main);
         mybar = findViewById(R.id.mytoolbar);
@@ -81,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
         contribution = findViewById(R.id.contribution);
         wallet = findViewById(R.id.wallet);
         sell = findViewById(R.id.sell);
+        pollution = findViewById(R.id.pollution);
 
         mStorageRef = FirebaseStorage.getInstance().getReference("images/");
         mDatabaseReference = FirebaseDatabase.getInstance().getReference().child("pic/");
@@ -135,10 +134,18 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        pollution.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this,pollutionActivity.class);
+                startActivity(intent);
+            }
+        });
+
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CAPTURE_IMAGE && resultCode == RESULT_OK && data != null && data.getData() != null) {
             final ProgressDialog progressDialog = new ProgressDialog(this);
@@ -164,45 +171,63 @@ public class MainActivity extends AppCompatActivity {
                                         String downloadUrl = downloadUri.toString();
                                         Toast.makeText(MainActivity.this, downloadUrl, Toast.LENGTH_SHORT).show();
 
+                                        // @POST Code using OKHTTP OAUTH2
+                                        okHttpClient = new OkHttpClient();
+                                        RequestBody requestBody = new FormBody.Builder()
+                                                .add("image", String.valueOf(data.getData()))
+                                                .build();
 
-                                        textToSpeech = new TextToSpeech(MainActivity.this, new TextToSpeech.OnInitListener() {
+                                        Request request = new Request.Builder()
+                                                .url(base + route)
+                                                .post(requestBody)
+                                                .build();
+
+                                        okHttpClient.newCall(request).enqueue(new Callback() {
                                             @Override
-                                            public void onInit(int status) {
-                                                if (status == TextToSpeech.SUCCESS) {
-                                                    // Make a multi-language model
-                                                    int result = textToSpeech.setLanguage(Locale.ENGLISH);
-                                                    if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                                                        Log.e("error", "This Language is not supported");
-                                                    } else {
-                                                        Toast.makeText(MainActivity.this, "Output :" + "Plastic", Toast.LENGTH_SHORT).show();
-                                                        textToSpeech.speak("Plastic", TextToSpeech.QUEUE_FLUSH, null);
+                                            public void onFailure(Call call, IOException e) {
+                                            }
+
+                                            @Override
+                                            public void onResponse(Call call, Response response) throws IOException {
+                                                final String string = response.body().string();
+                                                Handler mHandler = new Handler(Looper.getMainLooper()) {
+                                                    @Override
+                                                    public void handleMessage(Message message) {
+                                                        Toast.makeText(MainActivity.this, string, Toast.LENGTH_SHORT).show();
+
+                                                        textToSpeech = new TextToSpeech(MainActivity.this, new TextToSpeech.OnInitListener() {
+                                                            @Override
+                                                            public void onInit(int status) {
+                                                                if (status == TextToSpeech.SUCCESS) {
+                                                                    // Make a multi-language model
+                                                                    int result = textToSpeech.setLanguage(Locale.ENGLISH);
+                                                                    if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                                                                        Log.e("error", "This Language is not supported");
+                                                                    } else {
+                                                                        Toast.makeText(MainActivity.this, "Output :" + "P", Toast.LENGTH_SHORT).show();
+                                                                        textToSpeech.speak(string, TextToSpeech.QUEUE_FLUSH, null);
+                                                                    }
+                                                                } else {
+                                                                    Log.e("error", "Initilization Failed!");
+                                                                }
+                                                            }
+                                                        });
                                                     }
-                                                } else {
-                                                    Log.e("error", "Initilization Failed!");
-                                                }
-                                            }
+                                                };
 
-                                        });
-
-                                        String[] states = {"Yes", "No"};
-
-
-                                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                                        builder.setTitle("Was I correct ?");
-                                        builder.setItems(states, new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                // the user clicked on colors[which]
-                                                if (which == 0) {
-                                                    Toast.makeText(MainActivity.this, "I am glad", Toast.LENGTH_SHORT).show();
-                                                } else if (which == 1) {
-                                                    Toast.makeText(MainActivity.this, "I will improve next time.", Toast.LENGTH_SHORT).show();
+                                                Log.e("TEST", string);
+                                                Log.e("TAG", string);
+                                                try {
+                                                    Log.e("TEST", string);
+                                                } catch (Exception e) {
+                                                    Log.e("TEST", "catch");
+                                                    e.printStackTrace();
+                                                    Log.e("TEST", e.getMessage());
                                                 }
                                             }
                                         });
-                                        builder.show();
+                                    } else {
                                     }
-
                                 }
                             });
 
@@ -221,12 +246,9 @@ public class MainActivity extends AppCompatActivity {
                             Toast.makeText(MainActivity.this, "Error in uploading", Toast.LENGTH_SHORT).show();
                         }
                     });
-        } else
-
-        {
+        } else {
             Toast.makeText(MainActivity.this, "Cannot Upload", Toast.LENGTH_SHORT).show();
         }
-
     }
 
     @Override
