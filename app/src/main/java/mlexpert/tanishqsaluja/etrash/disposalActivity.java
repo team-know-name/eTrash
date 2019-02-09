@@ -11,8 +11,7 @@ public class disposalActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pollution);
+        setContentView(R.layout.activity_disposal);
         WebView webView = findViewById(R.id.webView);
         webView.setWebViewClient(new WebViewClient());
         WebSettings webSettings = webView.getSettings();

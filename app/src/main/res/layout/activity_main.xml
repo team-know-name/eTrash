@@ -264,7 +264,7 @@
                     app:cardCornerRadius="15dp">
 
                     <ImageView
-                        android:id="@+id/nearest"
+                        android:id="@+id/locate"
                         android:layout_width="150dp"
                         android:layout_height="150dp"
                         android:layout_gravity="center"

@@ -20,10 +20,10 @@ public class campaignActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.rv);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         final ArrayList<Item> arrayList = new ArrayList<>();
-        arrayList.add(new Item("Newspaper","Rs. 9.0/kg" ));
-        arrayList.add(new Item("Books","Rs. 6.0/kg" ));
-        arrayList.add(new Item("Metal","Rs. 12.0/kg" ));
-        final campaignAdapter adapter = new campaignAdapter(arrayList);
+        arrayList.add(new Item("Plain to Cable","12/02/2019" ));
+        arrayList.add(new Item("Clean to Green","20/02/2019" ));
+        arrayList.add(new Item("Swatchch Bharat Day","02/10/2019" ));
+        final campaignAdapter adapter = new campaignAdapter(this,arrayList);
         recyclerView.setAdapter(adapter);
 
     }

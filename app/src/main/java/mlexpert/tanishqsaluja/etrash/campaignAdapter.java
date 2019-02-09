@@ -1,5 +1,8 @@
 package mlexpert.tanishqsaluja.etrash;
 
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -12,9 +15,11 @@ import java.util.ArrayList;
 public class campaignAdapter extends RecyclerView.Adapter<campaignAdapter.campaignHolder> {
 
     ArrayList<Item> arrayList;
+    Context context;
 
-    campaignAdapter(ArrayList<Item> list) {
+    campaignAdapter(Context c, ArrayList<Item> list) {
         this.arrayList = list;
+        this.context=c;
     }
 
     @NonNull
@@ -28,11 +33,19 @@ public class campaignAdapter extends RecyclerView.Adapter<campaignAdapter.campai
         Item data = arrayList.get(position);
         holder.category.setText(data.getGarbage_category());
         holder.price.setText(data.getPrice());
+        holder.category.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse("https://www.facebook.com/events/328242774681586/"));
+                context.startActivity(intent);
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
-        return 10;
+        return 3;
     }
 
     public class campaignHolder extends RecyclerView.ViewHolder {

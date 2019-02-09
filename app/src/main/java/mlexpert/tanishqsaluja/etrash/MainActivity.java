@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton fab;
     private StorageReference mStorageRef;
     private DatabaseReference mDatabaseReference;
-    private ImageView webuy, rates, classify, contribution, wallet, sell,pollution;
+    private ImageView webuy, rates, classify, contribution, wallet, sell, pollution, locate, camp;
     private OkHttpClient okHttpClient;
     private Uri imageUri;
 
@@ -80,6 +80,9 @@ public class MainActivity extends AppCompatActivity {
         wallet = findViewById(R.id.wallet);
         sell = findViewById(R.id.sell);
         pollution = findViewById(R.id.pollution);
+        locate = findViewById(R.id.locate);
+        camp = findViewById(R.id.campaign);
+
 
         mStorageRef = FirebaseStorage.getInstance().getReference("images/");
         mDatabaseReference = FirebaseDatabase.getInstance().getReference().child("pic/");
@@ -137,7 +140,23 @@ public class MainActivity extends AppCompatActivity {
         pollution.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this,pollutionActivity.class);
+                Intent intent = new Intent(MainActivity.this, pollutionActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        locate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, disposalActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        camp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, campaignActivity.class);
                 startActivity(intent);
             }
         });
