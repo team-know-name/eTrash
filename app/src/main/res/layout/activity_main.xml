@@ -238,11 +238,11 @@
 
                     <ImageView
                         android:id="@+id/pollution"
+                        android:layout_width="150dp"
                         android:layout_height="150dp"
                         android:layout_gravity="center"
-                        android:layout_width="150dp"
                         android:padding="10dp"
-                        android:src="@drawable/wallet" />
+                        android:src="@drawable/pollution" />
 
                     <TextView
                         android:layout_width="match_parent"
@@ -269,12 +269,50 @@
                         android:layout_height="150dp"
                         android:layout_gravity="center"
                         android:padding="10dp"
-                        android:src="@drawable/contri" />
+                        android:src="@drawable/map" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Locate"
+                        android:textAlignment="center"
+                        android:textColor="#000"
+                        android:textSize="20dp"
+                        android:textStyle="bold" />
+                </android.support.v7.widget.CardView>
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="4"
+                android:gravity="center"
+                android:background="#00231f"
+                android:orientation="horizontal"
+                android:weightSum="2">
+
+                <android.support.v7.widget.CardView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="10dp"
+                    android:layout_weight="1"
+                    app:cardBackgroundColor="#fff"
+                    app:cardCornerRadius="15dp">
+
+                    <ImageView
+                        android:id="@+id/campaign"
+                        android:layout_width="150dp"
+                        android:layout_height="150dp"
+                        android:layout_gravity="center"
+                        android:padding="10dp"
+                        android:src="@drawable/campaign" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Campaign"
                         android:textAlignment="center"
                         android:textColor="#000"
                         android:textSize="20dp"

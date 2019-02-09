@@ -16,6 +16,6 @@ public class pollutionActivity extends AppCompatActivity {
         webView.setWebViewClient(new WebViewClient());
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
-        webView.loadUrl("https://aqicn.org/map/delhi/");
+        webView.loadUrl("http://www.dpccairdata.com/dpccairdata/display/index.php");
     }
 }
